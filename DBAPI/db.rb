@@ -2,7 +2,7 @@ require 'pg'
 require 'json'
 
 # Hard-coded because I have only one database, one user
-DB = PG::Connection.new(dbname: 's', user: 's')
+DB = PG::Connection.new(host: 'passwordless-postgres.orb.local', dbname: 's', user: 's')
 
 class DBAPI
 
