@@ -26,7 +26,7 @@ func NewDBAPI(schema string) *DBAPI {
 	}
 }
 
-func (db *DBAPI) a(funcName string, params ...interface{}) (bool, interface{}, error) {
+func (db *DBAPI) a(funcName string, params ...interface{}) (bool, interface{}) {
 	qs := "("
 	for i := range params {
 		if i > 0 {
@@ -43,7 +43,7 @@ func (db *DBAPI) a(funcName string, params ...interface{}) (bool, interface{}, e
 
 	err := db.conn.QueryRow(context.Background(), sql, params...).Scan(&ok, &js)
 	if err != nil {
-		return false, nil, err
+		return false, nil
 	}
 
 	// parse the json result
@@ -51,55 +51,38 @@ func (db *DBAPI) a(funcName string, params ...interface{}) (bool, interface{}, e
 	var result interface{}
 	err = json.Unmarshal(js, &result)
 	if err != nil {
-		return false, nil, err
+		return false, nil
 	}
 
-	return ok, result, nil
-
+	return ok, result
 }
 
 func main() {
 	API := NewDBAPI("zz")
 
 	fmt.Println("PERSON:")
-	ok, person, err := API.a("person", 1)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	ok, person := API.a("person", 1)
 	fmt.Println(ok, person)
 
-	ok, person, _ = API.a("person", 2)
+	ok, person = API.a("person", 2)
 	fmt.Println(ok, person)
 
-	ok, person, _ = API.a("person", 999)
+	ok, person = API.a("person", 999)
 	fmt.Println(ok, person)
 
 	fmt.Println("PEOPLE:")
-	ok, people, err := API.a("people")
-	if err != nil {
-		fmt.Println(err)
-	}
+	ok, people := API.a("people")
 	fmt.Println(ok, people)
 
 	fmt.Println("GIVE CHARLIE CHOCOLATE: (only once)")
-	ok, n, err := API.a("thing_add", 2, "chocolate", 3.75)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	ok, n := API.a("thing_add", 2, "chocolate", 3.75)
 	fmt.Println(ok, n)
 	if ok {
-		ok, n, err := API.a("thing_add", 2, "chocolate", 3.75)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		ok, n := API.a("thing_add", 2, "chocolate", 3.75)
 		fmt.Println(ok, n)
 	}
 
 	fmt.Println("GIVE CHARLIE LOVE: (overloaded, priceless)")
-	ok, n, _ = API.a("thing_add", 2, "love")
+	ok, n = API.a("thing_add", 2, "love")
 	fmt.Println(ok, n)
-
 }
