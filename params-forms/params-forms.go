@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 )
 
 func main() {
@@ -17,9 +18,9 @@ func main() {
 	mux.HandleFunc("GET /two", twoGetHandler)
 	mux.HandleFunc("POST /two", twoPostHandler)
 
-	// TODO: implement regex
-	mux.HandleFunc("GET /p/{id}/c/{cc}", pGetHandler)
-	mux.HandleFunc("POST /p/{id}/c/{cc}", pPostHandler)
+	// regex check is impemented in the handler function
+	mux.HandleFunc("GET /p/", pGetHandler)
+	mux.HandleFunc("POST /p/", pPostHandler)
 
 	http.ListenAndServe(":4567", mux)
 }
@@ -55,15 +56,27 @@ func twoPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pGetHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	id := r.PathValue("id")
-	cc := r.PathValue("cc")
-	fmt.Fprintf(w, "get /p/%s/c/%s a='%s'", id, cc, r.Form.Get("a"))
+	pattern := regexp.MustCompile("^/p/([1-9][0-9]*)/c/([A-Z][A-Z])")
+	if pattern.MatchString(r.URL.Path) {
+		matches := pattern.FindStringSubmatch(r.URL.Path)
+		id := matches[1]
+		cc := matches[2]
+
+		r.ParseForm()
+
+		fmt.Fprintf(w, "get /p/%s/c/%s a='%s'", id, cc, r.Form.Get("a"))
+	}
 }
 
 func pPostHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	id := r.PathValue("id")
-	cc := r.PathValue("cc")
-	fmt.Fprintf(w, "get /p/%s/c/%s a='%s'", id, cc, r.Form.Get("a"))
+	pattern := regexp.MustCompile("^/p/([1-9][0-9]*)/c/([A-Z][A-Z])")
+	if pattern.MatchString(r.URL.Path) {
+		matches := pattern.FindStringSubmatch(r.URL.Path)
+		id := matches[1]
+		cc := matches[2]
+
+		r.ParseForm()
+
+		fmt.Fprintf(w, "post /p/%s/c/%s a='%s'", id, cc, r.Form.Get("a"))
+	}
 }
