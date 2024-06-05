@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
 )
 
 func main() {
@@ -17,12 +16,16 @@ func main() {
 	http.ListenAndServe(":4567", mux)
 }
 
-// TODO: more info
 func infoHeaderHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Request at %v\n", time.Now())
-	for k, v := range r.Header {
-		fmt.Fprintf(w, "%v: %v\n", k, v)
-	}
+	fmt.Fprintf(w, "PATH_INFO = %s\n", r.URL.Path)
+	fmt.Fprintf(w, "QUERY_STRING = %s\n", r.URL.RawQuery)
+	fmt.Fprintf(w, "REMOTE_ADDR = %s\n", r.RemoteAddr)
+	fmt.Fprintf(w, "REQUEST_METHOD = %s\n", r.Method)
+	fmt.Fprintf(w, "REQUEST_URI = %s\n", r.RequestURI)
+	fmt.Fprintf(w, "SERVER_NAME = %s\n", r.Host)
+	fmt.Fprintf(w, "SERVER_PORT = %s\n", r.URL.Port())
+	fmt.Fprintf(w, "HTTP_HOST = %s\n", r.Host)
+	fmt.Fprintf(w, "HTTP_USER_AGENT = %s\n", r.UserAgent())
 }
 
 func lostHandler(w http.ResponseWriter, r *http.Request) {
