@@ -17,6 +17,7 @@ func main() {
 	mux.HandleFunc("GET /two", twoGetHandler)
 	mux.HandleFunc("POST /two", twoPostHandler)
 
+	// TODO: implement regex
 	mux.HandleFunc("GET /p/{id}/c/{cc}", pGetHandler)
 	mux.HandleFunc("POST /p/{id}/c/{cc}", pPostHandler)
 
