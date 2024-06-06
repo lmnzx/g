@@ -26,7 +26,7 @@ func NewDBAPI(schema string) *DBAPI {
 	}
 }
 
-func (db *DBAPI) a(funcName string, params ...interface{}) (bool, interface{}) {
+func (db *DBAPI) a(funcName string, params ...interface{}) (bool, []byte) {
 	qs := "("
 	for i := range params {
 		if i > 0 {
@@ -46,43 +46,101 @@ func (db *DBAPI) a(funcName string, params ...interface{}) (bool, interface{}) {
 		return false, nil
 	}
 
-	// parse the json result
-	// cannot be of type map[string]interface{} as zz.people() returns an array
-	var result interface{}
-	err = json.Unmarshal(js, &result)
-	if err != nil {
-		return false, nil
-	}
+	return ok, js
+}
 
-	return ok, result
+type Person struct {
+	ID        int     `json:"id"`
+	CreatedAt string  `json:"created_at"`
+	Admin     bool    `json:"admin"`
+	Name      string  `json:"name"`
+	Things    []Thing `json:"things"`
+}
+
+type Thing struct {
+	ID        int     `json:"id"`
+	Person_IS int     `json:"person_id"`
+	Name      string  `json:"name"`
+	Price     float32 `json:"price"`
+}
+
+type Error struct {
+	Error string `json:"error"`
 }
 
 func main() {
 	API := NewDBAPI("zz")
 
+	var person Person
+	var error Error
+	var people []Person
+	var thing Thing
+
 	fmt.Println("PERSON:")
-	ok, person := API.a("person", 1)
-	fmt.Println(ok, person)
+	ok, data := API.a("person", 1)
+	if !ok {
+		json.Unmarshal(data, &error)
+		fmt.Println(error)
+	} else {
+		json.Unmarshal(data, &person)
+		fmt.Println(person)
+	}
 
-	ok, person = API.a("person", 2)
-	fmt.Println(ok, person)
+	ok, data = API.a("person", 2)
+	if !ok {
+		json.Unmarshal(data, &error)
+		fmt.Println(error)
+	} else {
+		json.Unmarshal(data, &person)
+		fmt.Println(person)
+	}
 
-	ok, person = API.a("person", 999)
-	fmt.Println(ok, person)
+	ok, data = API.a("person", 999)
+	if !ok {
+		json.Unmarshal(data, &error)
+		fmt.Println(error)
+	} else {
+		json.Unmarshal(data, &person)
+		fmt.Println(person)
+	}
 
 	fmt.Println("PEOPLE:")
-	ok, people := API.a("people")
-	fmt.Println(ok, people)
+	ok, data = API.a("people")
+	if !ok {
+		json.Unmarshal(data, &error)
+		fmt.Println(error)
+	} else {
+		json.Unmarshal(data, &people)
+		fmt.Println(people)
+	}
 
 	fmt.Println("GIVE CHARLIE CHOCOLATE: (only once)")
-	ok, n := API.a("thing_add", 2, "chocolate", 3.75)
-	fmt.Println(ok, n)
+	ok, data = API.a("thing_add", 2, "chocolate", 3.75)
+	if !ok {
+		json.Unmarshal(data, &error)
+		fmt.Println(error)
+	} else {
+		json.Unmarshal(data, &thing)
+		fmt.Println(thing.ID)
+	}
 	if ok {
-		ok, n := API.a("thing_add", 2, "chocolate", 3.75)
-		fmt.Println(ok, n)
+		ok, data = API.a("thing_add", 2, "chocolate", 3.75)
+		if !ok {
+			json.Unmarshal(data, &error)
+			fmt.Println(error)
+		} else {
+			json.Unmarshal(data, &thing)
+			fmt.Println(thing.ID)
+		}
 	}
 
 	fmt.Println("GIVE CHARLIE LOVE: (overloaded, priceless)")
-	ok, n = API.a("thing_add", 2, "love")
-	fmt.Println(ok, n)
+	ok, data = API.a("thing_add", 2, "love")
+	if !ok {
+		json.Unmarshal(data, &error)
+		fmt.Println(error)
+	} else {
+		json.Unmarshal(data, &thing)
+		fmt.Println(thing.ID)
+	}
 }
