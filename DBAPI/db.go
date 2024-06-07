@@ -20,7 +20,7 @@ type JSONResult struct {
 }
 
 func NewDBAPI(schema string) *DBAPI {
-	conn, err := pgx.Connect(context.Background(), "host=127.0.0.1 dbname=s user=s")
+	conn, err := pgx.Connect(context.Background(), "dbname=s user=s")
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v", err)
 	}
